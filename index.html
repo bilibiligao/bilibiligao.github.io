@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>掷碗公 (Chinchirorin) - 传说成就版</title>
+    <title>掷碗公 (Chinchirorin) - 现金版</title>
     
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -90,7 +90,7 @@
             z-index: 50;
         }
 
-        /* ---------------- 成就系统新样式 ---------------- */
+        /* ---------------- 成就系统样式 ---------------- */
         .achievement-card {
             background: linear-gradient(145deg, #1c1917, #0f0e0d);
             border: 1px solid #292524;
@@ -99,11 +99,10 @@
             overflow: hidden;
         }
         
-        /* 稀有度等级边框与光效 */
-        .rarity-common { border-left: 4px solid #78716c; } /* 灰/铜 */
-        .rarity-uncommon { border-left: 4px solid #3b82f6; } /* 蓝 */
-        .rarity-rare { border-left: 4px solid #a855f7; } /* 紫 */
-        .rarity-epic { border-left: 4px solid #eab308; box-shadow: 0 0 10px rgba(234, 179, 8, 0.1); } /* 金 */
+        .rarity-common { border-left: 4px solid #78716c; } 
+        .rarity-uncommon { border-left: 4px solid #3b82f6; } 
+        .rarity-rare { border-left: 4px solid #a855f7; } 
+        .rarity-epic { border-left: 4px solid #eab308; box-shadow: 0 0 10px rgba(234, 179, 8, 0.1); } 
         .rarity-legendary { 
             border: 1px solid #facc15; 
             border-left: 4px solid #facc15; 
@@ -111,21 +110,36 @@
             box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
         }
 
-        .achievement-icon-wrapper {
-            transition: all 0.5s;
-        }
-        
-        /* 未解锁状态 */
-        .achievement-locked .achievement-icon-wrapper {
-            filter: grayscale(100%);
-            opacity: 0.3;
-        }
+        .achievement-icon-wrapper { transition: all 0.5s; }
+        .achievement-locked .achievement-icon-wrapper { filter: grayscale(100%); opacity: 0.3; }
         .achievement-locked .ach-title { color: #57534e; }
         .achievement-locked .ach-desc { color: #44403c; }
 
-        /* 进度条 */
         .progress-bar-bg { background-color: #292524; height: 4px; border-radius: 2px; width: 100%; margin-top: 6px; }
         .progress-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+
+        .claim-btn {
+            background: linear-gradient(to right, #22c55e, #16a34a);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        /* 统计卡片样式 */
+        .stat-card {
+            background: #292524;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #44403c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
 
         /* 弹窗动画 */
         @keyframes slide-in-bottom {
@@ -140,40 +154,64 @@
 <body class="bg-stone-900 text-stone-100 min-h-screen flex flex-col items-center overflow-x-hidden">
 
     <!-- 顶部栏 -->
-    <header class="w-full bg-red-900 py-3 shadow-xl border-b-4 border-yellow-600 flex justify-between items-center px-4 md:px-6 z-20">
+    <header class="w-full bg-red-900 py-2 shadow-xl border-b-4 border-yellow-600 flex justify-between items-center px-4 md:px-6 z-20">
         <div class="flex items-center">
-            <i data-lucide="dices" class="w-8 h-8 mr-2 text-yellow-400"></i>
+            <i data-lucide="dices" class="w-6 h-6 mr-2 text-yellow-400"></i>
             <div>
-                <h1 class="text-xl md:text-2xl font-bold tracking-widest text-yellow-100">掷碗公</h1>
-                <span class="text-[10px] text-red-300 block uppercase tracking-wide">Chinchirorin</span>
+                <h1 class="text-lg md:text-xl font-bold tracking-widest text-yellow-100">掷碗公</h1>
+                <span class="text-[9px] text-red-300 block uppercase tracking-wide">Chinchirorin</span>
             </div>
         </div>
-        <div class="flex items-center space-x-3">
-             <div class="flex flex-col items-end">
-                <span class="text-[10px] text-stone-400">筹码 / CREDITS</span>
-                <span id="credits-display" class="text-xl font-mono text-yellow-400 font-bold">1000</span>
+        <div class="flex items-center space-x-2">
+             <!-- 资产显示 -->
+             <div class="flex flex-col items-end mr-2 bg-black/20 px-3 py-1 rounded border border-red-800">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-stone-300">筹码</span>
+                    <span id="credits-display" class="text-sm font-mono text-yellow-400 font-bold">1000</span>
+                </div>
+                <div class="flex items-center gap-2 border-t border-red-800/50 pt-0.5 mt-0.5">
+                    <span class="text-[10px] text-stone-300">现金</span>
+                    <span id="cash-display" class="text-sm font-mono text-green-400 font-bold">$30</span>
+                </div>
              </div>
+
+             <!-- 交易所按钮 -->
+             <button onclick="toggleExchange()" class="p-2 bg-stone-700 rounded-full hover:bg-stone-600 transition-colors">
+                <i data-lucide="arrow-left-right" class="w-4 h-4 text-green-400"></i>
+             </button>
+
+             <!-- 统计按钮 -->
+             <button onclick="toggleStats()" class="p-2 bg-stone-700 rounded-full hover:bg-stone-600 transition-colors">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-blue-400"></i>
+             </button>
+             
              <!-- 奖杯按钮 -->
              <button onclick="toggleAchievements()" class="p-2 bg-stone-700 rounded-full hover:bg-stone-600 transition-colors relative">
-                <i data-lucide="trophy" class="w-5 h-5 text-yellow-500"></i>
+                <i data-lucide="trophy" class="w-4 h-4 text-yellow-500"></i>
                 <span id="new-achievement-dot" class="hidden absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-stone-800"></span>
              </button>
+             
              <!-- 规则按钮 -->
              <button onclick="toggleRules()" class="p-2 bg-stone-700 rounded-full hover:bg-stone-600 transition-colors">
-                <i data-lucide="help-circle" class="w-5 h-5"></i>
+                <i data-lucide="help-circle" class="w-4 h-4"></i>
              </button>
         </div>
     </header>
 
     <main class="flex-1 w-full max-w-md flex flex-col items-center justify-center relative p-4 z-10">
         
+        <!-- 存活回合显示 -->
+        <div class="absolute top-2 left-4 text-xs font-mono text-stone-500 bg-black/30 px-2 py-1 rounded">
+            存活回合: <span id="survival-rounds" class="text-white font-bold">0</span>
+        </div>
+
         <!-- 消息提示 -->
-        <div class="w-full bg-stone-800/90 rounded-lg p-3 mb-6 text-center border border-stone-600 backdrop-blur-sm min-h-[4rem] flex items-center justify-center shadow-lg transition-all">
+        <div class="w-full bg-stone-800/90 rounded-lg p-3 mb-6 text-center border border-stone-600 backdrop-blur-sm min-h-[4rem] flex items-center justify-center shadow-lg transition-all mt-6">
             <p id="game-message" class="text-lg font-medium text-yellow-100">请下注开始游戏</p>
         </div>
 
         <!-- 碗 -->
-        <div id="bowl-container" class="bowl w-72 h-72 rounded-full border-8 border-orange-900 flex items-center justify-center relative mb-8 transition-transform">
+        <div id="bowl-container" class="bowl w-64 h-64 rounded-full border-8 border-orange-900 flex items-center justify-center relative mb-8 transition-transform">
             <div class="absolute inset-0 rounded-full opacity-20 pointer-events-none" style="background-image: radial-gradient(circle, transparent 20%, #000 120%);"></div>
             <div id="dice-wrapper" class="relative z-10 flex">
                 <div class="die" data-value="1"> <div class="dot" style="grid-area: 2/2"></div> </div>
@@ -257,12 +295,63 @@
             </div>
         </div>
 
-        <div id="history-log" class="hidden md:block absolute top-4 -right-36 w-32 space-y-1"></div>
+        <div id="history-log" class="hidden md:block absolute top-16 -right-36 w-32 space-y-1"></div>
         
         <!-- 成就通知Toast容器 -->
         <div id="toast-container" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm px-4 pointer-events-none z-50 flex flex-col gap-2"></div>
 
     </main>
+
+    <!-- 交易所弹窗 -->
+    <div id="exchange-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-stone-800 rounded-lg max-w-sm w-full p-6 border border-stone-600 relative my-8 shadow-2xl">
+            <button onclick="toggleExchange()" class="absolute top-4 right-4 text-stone-400 hover:text-white bg-stone-700 rounded-full w-8 h-8 flex items-center justify-center z-10">✕</button>
+            <h2 class="text-xl font-bold text-green-400 mb-6 border-b border-stone-600 pb-2 flex items-center gap-2">
+                <i data-lucide="arrow-left-right" class="w-5 h-5"></i> 交易所
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- 购买筹码 -->
+                <div class="bg-stone-900 p-4 rounded border border-stone-700">
+                    <div class="text-xs text-stone-400 mb-2 flex justify-between">
+                        <span>购买筹码 (现金 -> 筹码)</span>
+                        <span class="text-green-500">1 : 90 (含10%费)</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="number" id="buy-credits-input" class="w-full bg-stone-800 border border-stone-600 rounded px-2 py-1 text-white" placeholder="支付现金数量">
+                        <button onclick="exchangeMoney('buy')" class="bg-green-700 hover:bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">兑换</button>
+                    </div>
+                </div>
+
+                <!-- 兑换现金 -->
+                <div class="bg-stone-900 p-4 rounded border border-stone-700">
+                    <div class="text-xs text-stone-400 mb-2 flex justify-between">
+                        <span>兑现 (筹码 -> 现金)</span>
+                        <span class="text-yellow-500">100 : 0.9 (含10%费)</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="number" id="sell-credits-input" class="w-full bg-stone-800 border border-stone-600 rounded px-2 py-1 text-white" placeholder="支付筹码数量">
+                        <button onclick="exchangeMoney('sell')" class="bg-yellow-700 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm font-bold">兑换</button>
+                    </div>
+                </div>
+            </div>
+            <p class="text-[10px] text-stone-500 mt-4 text-center">注意：所有交易收取 10% 利息(手续费)。</p>
+        </div>
+    </div>
+
+    <!-- 统计弹窗 -->
+    <div id="stats-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-stone-800 rounded-lg max-w-md w-full p-6 border border-stone-600 relative my-8 shadow-2xl flex flex-col max-h-[90vh]">
+            <button onclick="toggleStats()" class="absolute top-4 right-4 text-stone-400 hover:text-white bg-stone-700 rounded-full w-8 h-8 flex items-center justify-center z-10">✕</button>
+            <h2 class="text-2xl font-bold text-blue-400 mb-6 border-b border-stone-600 pb-2 flex items-center gap-2">
+                <i data-lucide="bar-chart-2" class="w-6 h-6"></i> 玩家数据
+            </h2>
+            
+            <div id="stats-content" class="grid grid-cols-2 gap-3 overflow-y-auto custom-scrollbar flex-1 pb-2">
+                <!-- 统计卡片将由JS生成 -->
+            </div>
+        </div>
+    </div>
 
     <!-- 规则弹窗 -->
     <div id="rules-modal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -272,10 +361,27 @@
                 <i data-lucide="book-open" class="w-6 h-6"></i> 游戏规则
             </h2>
             <div class="space-y-4 text-sm text-stone-300 h-80 overflow-y-auto pr-2 custom-scrollbar">
-                <!-- 规则内容 -->
                 <section>
-                    <h3 class="font-bold text-white mb-1 bg-stone-700 px-2 py-1 rounded inline-block">筹码说明</h3>
-                    <p class="mt-1">开局时扣除底注。若输掉高倍率（如2倍），需<span class="text-red-400 font-bold">额外扣除</span>剩余倍数的筹码。</p>
+                    <h3 class="font-bold text-green-400 mb-1 border-b border-green-900/50 pb-1">生存与破产</h3>
+                    <ul class="list-disc pl-4 space-y-1 mt-1 text-stone-400">
+                        <li><span class="text-white">破产保护</span>: 筹码归零时，自动扣除 <span class="text-green-400">$15</span> 购买 <span class="text-yellow-400">1000筹码</span>。</li>
+                        <li><span class="text-red-500 font-bold">彻底破产</span>: 若筹码归零且现金不足 $15，游戏结束！存活回合数清零。</li>
+                        <li><span class="text-white">交易所</span>: 100筹码 = $1现金。双向兑换均收 10% 费用。</li>
+                    </ul>
+                </section>
+                <section>
+                    <h3 class="font-bold text-white mb-1 bg-stone-700 px-2 py-1 rounded inline-block">特殊规则</h3>
+                    <ul class="list-disc pl-4 space-y-1 mt-1 text-stone-400">
+                        <li><span class="text-yellow-400">武藏 (6-3-4)</span>: 视为 <span class="text-white font-bold">6点</span>。</li>
+                        <li><span class="text-blue-300">奇数窥 (1-3-5)</span>: 
+                            <br>- 庄家掷出视为 <span class="text-white font-bold">3点</span>。
+                            <br>- 闲家掷出视为 <span class="text-white font-bold">复制庄家点数</span> (平局)。
+                        </li>
+                        <li><span class="text-blue-300">偶数咽 (2-4-6)</span>: 
+                            <br>- 闲家掷出视为 <span class="text-white font-bold">4点</span>。
+                            <br>- 庄家掷出视为 <span class="text-white font-bold">复制下家点数</span> (注定平局)。
+                        </li>
+                    </ul>
                 </section>
                 <section>
                     <h3 class="font-bold text-red-400 mb-1 border-b border-red-900/50 pb-1">极好运 (高倍率)</h3>
@@ -283,12 +389,15 @@
                         <li><span class="text-yellow-400 font-bold">1-1-1 (围一)</span>: 5倍。</li>
                         <li><span class="text-yellow-400 font-bold">豹子 (围子)</span>: 3倍。</li>
                         <li><span class="text-yellow-400 font-bold">4-5-6 (四五六)</span>: 2倍。</li>
+                        <li><span class="text-red-400 font-bold">庄家6点</span>: 庄家直接胜利 (1倍)。</li>
                     </ul>
                 </section>
                 <section>
                     <h3 class="font-bold text-blue-400 mb-1 border-b border-blue-900/50 pb-1">极厄运 (输倍率)</h3>
                     <ul class="list-disc pl-4 space-y-1 mt-1 text-stone-400">
                         <li><span class="text-blue-300 font-bold">1-2-3 (一二三)</span>: 输2倍。</li>
+                        <li><span class="text-blue-300 font-bold">庄家1点</span>: 庄家直接失败 (1倍)。</li>
+                        <li><span class="text-red-500 font-bold">小恭 (飞出)</span>: 直接判负。</li>
                     </ul>
                 </section>
             </div>
@@ -307,6 +416,8 @@
                 <span>总进度:</span>
                 <span id="achievement-progress" class="text-white font-bold">0%</span>
             </div>
+            
+            <p class="text-xs text-green-400 mb-2">* 点击发光的卡片领取现金奖励！</p>
 
             <div id="achievements-list" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1 pb-4">
                 <!-- 成就列表将由JS生成 -->
@@ -317,17 +428,27 @@
     <script>
         lucide.createIcons();
         const INITIAL_CREDITS = 1000;
+        const INITIAL_CASH = 30;
         const MAX_ROLLS = 3;
         const ROLE = { DEALER: 'dealer', PLAYER: 'player' };
         
         const RESULT_TYPE = {
             PIN_ZORO: 'pin_zoro', ALMIGHTY: 'almighty', SHIGORO: 'shigoro',
             HIFUMI: 'hifumi', POINT: 'point', MENASHI: 'menashi',
-            SHONBEN: 'shonben', MUSASHI: 'musashi', ODD_PEEP: 'odd_peep', EVEN_SWALLOW: 'even_swallow'
+            SHONBEN: 'shonben', MUSASHI: 'musashi', ODD_PEEP: 'odd_peep', EVEN_SWALLOW: 'even_swallow',
+            COPY_NEXT: 'copy_next'
+        };
+
+        // 奖励定义
+        const REWARDS = {
+            'rarity-common': 5,
+            'rarity-uncommon': 10,
+            'rarity-rare': 25,
+            'rarity-epic': 50,
+            'rarity-legendary': 100
         };
 
         // --- 分级成就定义 ---
-        // levels: 阈值, 描述, 稀有度颜色Class
         const ACHIEVEMENT_DEFINITIONS = [
             { 
                 id: 'wins', 
@@ -351,24 +472,49 @@
                 ]
             },
             { 
+                id: 'musashi_master', 
+                title: '剑豪武藏', 
+                icon: 'sword',
+                levels: [
+                    { val: 1, desc: '掷出 6-3-4 (武藏)', rarity: 'rarity-uncommon', color: 'text-red-400', tierName: '二天一流' },
+                    { val: 5, desc: '掷出 5 次 6-3-4', rarity: 'rarity-legendary', color: 'text-red-600', tierName: '天下无双' }
+                ]
+            },
+            { 
+                id: 'mirror_master', 
+                title: '模仿大师', 
+                icon: 'copy',
+                levels: [
+                    { val: 1, desc: '触发 1-3-5 或 2-4-6 的特殊规则', rarity: 'rarity-common', color: 'text-blue-300', tierName: '初窥门径' },
+                    { val: 10, desc: '触发 10 次特殊规则', rarity: 'rarity-epic', color: 'text-blue-500', tierName: '千变万化' }
+                ]
+            },
+            { 
                 id: 'wealth', 
                 title: '财源滚滚', 
                 icon: 'gem',
                 levels: [
                     { val: 5000, desc: '持有 5,000 筹码', rarity: 'rarity-uncommon', color: 'text-blue-400', tierName: '小有资产' },
                     { val: 50000, desc: '持有 50,000 筹码', rarity: 'rarity-rare', color: 'text-purple-400', tierName: '腰缠万贯' },
-                    { val: 200000, desc: '持有 200,000 筹码', rarity: 'rarity-epic', color: 'text-yellow-400', tierName: '富甲一方' },
-                    { val: 1000000, desc: '持有 1,000,000 筹码', rarity: 'rarity-legendary', color: 'text-yellow-500', tierName: '富可敌国' }
+                    { val: 200000, desc: '持有 200,000 筹码', rarity: 'rarity-epic', color: 'text-yellow-400', tierName: '富甲一方' }
                 ]
             },
             {
-                id: 'sniper',
-                title: '一击必杀',
-                icon: 'crosshair',
+                id: 'high_roller',
+                title: '豪赌客',
+                icon: 'banknote',
                 levels: [
-                    { val: 1, desc: '一击必杀模式获胜 1 次', rarity: 'rarity-common', color: 'text-stone-300', tierName: '精准打击' },
-                    { val: 5, desc: '一击必杀模式获胜 5 次', rarity: 'rarity-rare', color: 'text-purple-400', tierName: '狙击精英' },
-                    { val: 20, desc: '一击必杀模式获胜 20 次', rarity: 'rarity-legendary', color: 'text-yellow-400', tierName: '死神降临' }
+                    { val: 1, desc: '单次下注超过总资金的 50%', rarity: 'rarity-rare', color: 'text-green-400', tierName: '孤注一掷' },
+                    { val: 10, desc: '完成 10 次半仓以上下注', rarity: 'rarity-legendary', color: 'text-green-500', tierName: '赌神之心' }
+                ]
+            },
+            {
+                id: 'peace_maker',
+                title: '和平主义者',
+                icon: 'handshake',
+                levels: [
+                    { val: 1, desc: '达成 1 次走水 (平局)', rarity: 'rarity-common', color: 'text-stone-400', tierName: '握手言和' },
+                    { val: 20, desc: '达成 20 次走水 (平局)', rarity: 'rarity-epic', color: 'text-stone-200', tierName: '绝对中立' }
                 ]
             },
             { 
@@ -379,30 +525,14 @@
                     { val: 1, desc: '掷出 1 次围一 (1-1-1)', rarity: 'rarity-rare', color: 'text-purple-400', tierName: '天选之人' },
                     { val: 3, desc: '掷出 3 次围一 (1-1-1)', rarity: 'rarity-legendary', color: 'text-yellow-400', tierName: '位面之子' }
                 ]
-            },
-            { 
-                id: 'unlucky', 
-                title: '倒霉透顶', 
-                icon: 'skull',
-                levels: [
-                    { val: 1, desc: '掷出 1 次一二三 (1-2-3)', rarity: 'rarity-common', color: 'text-stone-400', tierName: '喝水塞牙' },
-                    { val: 5, desc: '掷出 5 次一二三 (1-2-3)', rarity: 'rarity-rare', color: 'text-purple-400', tierName: '被诅咒者' }
-                ]
-            },
-            {
-                id: 'survivor',
-                title: '绝境逢生',
-                icon: 'activity',
-                levels: [
-                    { val: 1, desc: '筹码不足300时获胜 1 次', rarity: 'rarity-uncommon', color: 'text-blue-400', tierName: '绝处逢生' },
-                    { val: 5, desc: '筹码不足300时获胜 5 次', rarity: 'rarity-epic', color: 'text-yellow-400', tierName: '不死鸟' }
-                ]
             }
         ];
 
         // --- 游戏状态 & 数据 ---
         const defaultState = {
             credits: INITIAL_CREDITS,
+            cash: INITIAL_CASH,
+            survivalRounds: 0,
             bet: 100,
             turnRole: ROLE.DEALER,
             dice: [1, 2, 3],
@@ -411,26 +541,33 @@
             isOneShotMode: false,
             dealerResult: null,
             playerResult: null,
+            dealerCopyNext: false, 
             history: [],
             // 统计数据
             stats: {
                 wins: 0,
                 losses: 0,
+                draws: 0,
                 currentStreak: 0,
+                maxStreak: 0, 
                 maxCredits: INITIAL_CREDITS,
-                hifumiCount: 0,
+                maxSurvivalRounds: 0,
+                musashiCount: 0,
+                specialRuleCount: 0, 
+                highRollerCount: 0,
                 pinZoroCount: 0,
-                sniperWins: 0,
-                survivorWins: 0
+                hifumiCount: 0
             },
-            // 存储成就进度: { 'wins': 2 } 表示wins成就已达到等级2
-            achievementLevels: {} 
+            achievementLevels: {}, // { 'wins': 1 }
+            claimedRewards: {} // { 'wins': {1: true} }
         };
 
         let state = loadData() || defaultState;
 
         const els = {
             credits: document.getElementById('credits-display'),
+            cash: document.getElementById('cash-display'),
+            survival: document.getElementById('survival-rounds'),
             message: document.getElementById('game-message'),
             diceWrapper: document.getElementById('dice-wrapper'),
             shonben: document.getElementById('shonben-indicator'),
@@ -453,67 +590,104 @@
             achievementsModal: document.getElementById('achievements-modal'),
             achievementsList: document.getElementById('achievements-list'),
             achievementProgress: document.getElementById('achievement-progress'),
+            statsModal: document.getElementById('stats-modal'),
+            statsContent: document.getElementById('stats-content'),
+            exchangeModal: document.getElementById('exchange-modal'),
+            buyInput: document.getElementById('buy-credits-input'),
+            sellInput: document.getElementById('sell-credits-input'),
             toastContainer: document.getElementById('toast-container'),
             newAchievementDot: document.getElementById('new-achievement-dot')
         };
 
-        // --- 数据持久化 (V2) ---
+        // --- 数据持久化 (V4) ---
         function saveData() {
-            localStorage.setItem('chinchirorin_save_v2', JSON.stringify(state));
+            localStorage.setItem('chinchirorin_save_v4', JSON.stringify(state));
         }
 
         function loadData() {
-            // 尝试加载 v2
-            const dataV2 = localStorage.getItem('chinchirorin_save_v2');
-            if (dataV2) return JSON.parse(dataV2);
-            
-            // 尝试加载 v1 (兼容旧存档的筹码)
-            const dataV1 = localStorage.getItem('chinchirorin_save_v1');
-            if (dataV1) {
-                const old = JSON.parse(dataV1);
-                // 迁移筹码，重置其他（因为结构变了）
-                const migrated = { ...defaultState };
-                migrated.credits = old.credits || INITIAL_CREDITS;
-                return migrated;
-            }
+            const dataV4 = localStorage.getItem('chinchirorin_save_v4');
+            if (dataV4) return JSON.parse(dataV4);
             return null;
         }
 
         // --- 初始化 UI ---
-        updateCredits(state.credits);
+        updateAssetsDisplay();
         renderDice([1, 2, 3]);
 
         // --- 核心逻辑 ---
 
         function getRandomDice() { return Math.floor(Math.random() * 6) + 1; }
 
-        function evaluateRoll(diceArray, role, dealerPoint) {
+        function evaluateRoll(diceArray, role, dealerResultObj) {
             const sorted = [...diceArray].sort((a, b) => a - b);
             const s = sorted.join('');
+            
+            // 极好运
             if (s === '111') return { type: RESULT_TYPE.PIN_ZORO, value: 10, multiplier: 5, label: '围一 (5倍)' };
             if (sorted[0] === sorted[1] && sorted[1] === sorted[2]) return { type: RESULT_TYPE.ALMIGHTY, value: 10, multiplier: 3, label: '围子 (3倍)' };
             if (s === '456') return { type: RESULT_TYPE.SHIGORO, value: 10, multiplier: 2, label: '四五六 (2倍)' };
+            
+            // 极厄运
             if (s === '123') return { type: RESULT_TYPE.HIFUMI, value: 0, multiplier: 2, label: '一二三 (赔2倍)' };
-            if (diceArray.includes(6) && diceArray.includes(3) && diceArray.includes(4)) return { type: RESULT_TYPE.MUSASHI, value: 6, multiplier: 1, label: '武藏 (6点)' };
-            if (s === '135') {
-                let val = 3;
-                let label = '奇数窥 (3点)';
-                if (role === ROLE.PLAYER && dealerPoint !== null && dealerPoint > 0) { val = dealerPoint; label = `奇数窥 (复制 ${val}点)`; }
-                return { type: RESULT_TYPE.ODD_PEEP, value: val, multiplier: 1, label: label };
+            
+            // 武藏 (6-3-4) -> 视为6点
+            if (diceArray.includes(6) && diceArray.includes(3) && diceArray.includes(4)) {
+                return { type: RESULT_TYPE.MUSASHI, value: 6, multiplier: 1, label: '武藏 (6点)' };
             }
-            if (s === '246') return { type: RESULT_TYPE.EVEN_SWALLOW, value: 4, multiplier: 1, label: '偶数咽 (4点)' };
-            if (sorted[0] === sorted[1]) return { type: RESULT_TYPE.POINT, value: sorted[2], multiplier: 1, label: `${sorted[2]} 点` };
-            if (sorted[1] === sorted[2]) return { type: RESULT_TYPE.POINT, value: sorted[0], multiplier: 1, label: `${sorted[0]} 点` };
-            if (sorted[0] === sorted[2]) return { type: RESULT_TYPE.POINT, value: sorted[1], multiplier: 1, label: `${sorted[1]} 点` };
-            return null;
+
+            // 奇数窥 (1-3-5)
+            if (s === '135') {
+                if (role === ROLE.DEALER) {
+                    return { type: RESULT_TYPE.ODD_PEEP, value: 3, multiplier: 1, label: '奇数窥 (3点)' };
+                } else {
+                    const dealerVal = dealerResultObj ? dealerResultObj.value : 3;
+                    return { type: RESULT_TYPE.ODD_PEEP, value: dealerVal, multiplier: 1, label: '奇数窥 (复制)' };
+                }
+            }
+
+            // 偶数咽 (2-4-6)
+            if (s === '246') {
+                if (role === ROLE.DEALER) {
+                    return { type: RESULT_TYPE.COPY_NEXT, value: -1, multiplier: 1, label: '偶数咽 (复制下家)' };
+                } else {
+                    return { type: RESULT_TYPE.EVEN_SWALLOW, value: 4, multiplier: 1, label: '偶数咽 (4点)' };
+                }
+            }
+
+            // 普通点数 (目)
+            let point = null;
+            if (sorted[0] === sorted[1]) point = sorted[2];
+            else if (sorted[1] === sorted[2]) point = sorted[0];
+            else if (sorted[0] === sorted[2]) point = sorted[1]; 
+
+            if (point !== null) {
+                if (role === ROLE.DEALER) {
+                    if (point === 6) return { type: RESULT_TYPE.POINT, value: 6, multiplier: 1, label: '6点 (速胜)', instantWin: true };
+                    if (point === 1) return { type: RESULT_TYPE.POINT, value: 1, multiplier: 1, label: '1点 (速败)', instantLoss: true };
+                }
+                return { type: RESULT_TYPE.POINT, value: point, multiplier: 1, label: `${point} 点` };
+            }
+
+            return null; // 无点
         }
 
         function startGame() {
             if (state.credits < state.bet) { alert("筹码不足！"); return; }
-            updateCredits(state.credits - state.bet); // 扣除底注
             
-            state.dealerResult = null; state.playerResult = null; state.turnRole = ROLE.DEALER;
-            state.rollsLeft = MAX_ROLLS; state.isOneShotMode = false; state.dice = [1, 2, 3];
+            if (state.bet >= state.credits * 0.5) {
+                state.stats.highRollerCount = (state.stats.highRollerCount || 0) + 1;
+            }
+
+            state.credits -= state.bet;
+            updateAssetsDisplay();
+            
+            state.dealerResult = null; 
+            state.playerResult = null; 
+            state.turnRole = ROLE.DEALER;
+            state.dealerCopyNext = false;
+            state.rollsLeft = MAX_ROLLS; 
+            state.isOneShotMode = false; 
+            state.dice = [1, 2, 3];
             
             renderDice([1,2,3]);
             els.shonben.classList.add('hidden');
@@ -561,8 +735,7 @@
                 state.dice = newDice; renderDice(newDice);
                 
                 const currentRole = state.turnRole;
-                const dealerPt = state.dealerResult ? state.dealerResult.value : null;
-                const evalResult = evaluateRoll(newDice, currentRole, dealerPt);
+                const evalResult = evaluateRoll(newDice, currentRole, state.dealerResult);
 
                 if (evalResult) {
                     handleTurnEnd(currentRole, evalResult);
@@ -592,17 +765,30 @@
 
         function handleTurnEnd(role, result) {
             addLog(`${role === ROLE.DEALER ? '庄家' : '闲家'}: ${result.label}`);
+            
+            if (result.type === RESULT_TYPE.MUSASHI) state.stats.musashiCount = (state.stats.musashiCount || 0) + 1;
+            if (result.type === RESULT_TYPE.ODD_PEEP || result.type === RESULT_TYPE.EVEN_SWALLOW || result.type === RESULT_TYPE.COPY_NEXT) {
+                state.stats.specialRuleCount = (state.stats.specialRuleCount || 0) + 1;
+            }
+
             if (role === ROLE.DEALER) {
                 state.dealerResult = result;
                 els.resDealer.innerText = result.label;
                 els.resDealer.classList.add('text-yellow-400');
 
-                // 庄家即时胜负
-                if ([RESULT_TYPE.PIN_ZORO, RESULT_TYPE.ALMIGHTY, RESULT_TYPE.SHIGORO].includes(result.type) || result.value === 6) {
-                    finalizeRound(role, result, null); return;
+                const isDealerWin = [RESULT_TYPE.PIN_ZORO, RESULT_TYPE.ALMIGHTY, RESULT_TYPE.SHIGORO].includes(result.type) || result.instantWin;
+                const isDealerLoss = [RESULT_TYPE.HIFUMI, RESULT_TYPE.SHONBEN, RESULT_TYPE.MENASHI].includes(result.type) || result.instantLoss;
+
+                if (isDealerWin || isDealerLoss) {
+                    finalizeRound(role, result, null); 
+                    return;
                 }
-                if ([RESULT_TYPE.HIFUMI, RESULT_TYPE.SHONBEN, RESULT_TYPE.MENASHI].includes(result.type) || result.value === 1) {
-                    finalizeRound(role, result, null); return;
+                
+                if (result.type === RESULT_TYPE.COPY_NEXT) {
+                    state.dealerCopyNext = true;
+                    els.message.innerText = "庄家投出偶数咽！将复制你的点数。";
+                } else {
+                    els.message.innerText = `庄家点数: ${result.label}。轮到你挑战！`;
                 }
 
                 state.turnRole = ROLE.PLAYER;
@@ -610,7 +796,6 @@
                 state.isOneShotMode = false;
                 els.rollsLeft.innerText = MAX_ROLLS;
                 els.modeDisplay.innerText = "请选择"; els.modeDisplay.className = "text-white";
-                els.message.innerText = `庄家点数: ${result.label}。轮到你挑战！`;
                 highlightPanel(ROLE.PLAYER);
                 switchView('rolling');
                 els.btnRollNormal.innerHTML = `<span class="text-lg flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4"></i>稳健</span><span class="text-[10px] opacity-80 font-normal">3次机会 | 1倍赔率</span>`;
@@ -635,7 +820,6 @@
             else { state.playerResult = res; els.resPlayer.innerText = "OUT!"; finalizeRound(ROLE.DEALER, state.dealerResult, res); }
         }
 
-        // --- 核心结算逻辑 & 统计更新 ---
         function finalizeRound(dealerRole, dRes, pRes) {
             switchView('result');
             let winAmount = 0; 
@@ -644,51 +828,52 @@
             let floatText = ""; 
             let floatColor = "";
             let isWin = false;
+            let isDraw = false;
 
-            // --- A: 庄家直接阶段 (闲家没扔) ---
             if (!pRes) {
-                const dealerWins = [RESULT_TYPE.PIN_ZORO, RESULT_TYPE.ALMIGHTY, RESULT_TYPE.SHIGORO].includes(dRes.type) || dRes.value === 6;
+                const isDealerWin = [RESULT_TYPE.PIN_ZORO, RESULT_TYPE.ALMIGHTY, RESULT_TYPE.SHIGORO].includes(dRes.type) || dRes.instantWin;
                 
-                if (dealerWins) {
-                    // 闲家输
+                if (isDealerWin) {
                     const mult = dRes.multiplier || 1;
                     const totalLoss = state.bet * mult;
                     if (mult > 1) {
-                        const extraLoss = state.bet * (mult - 1);
-                        updateCredits(state.credits - extraLoss);
+                        state.credits -= state.bet * (mult - 1);
                     }
                     endMsg = `庄家通杀！(${dRes.label})`;
                     logMsg = `结果: 闲家输 ${totalLoss}`;
                     floatText = `-${totalLoss}`; floatColor = "text-red-500";
-                    updateStats(false, 0, null);
+                    isWin = false;
                 } else {
-                    // 闲家赢 (庄家自爆)
                     const mult = dRes.multiplier || 1; 
                     const totalWin = state.bet * mult;
                     winAmount = state.bet + totalWin;
                     endMsg = `庄家通赔！(${dRes.label})`;
                     logMsg = `结果: 闲家赢 ${totalWin}`;
                     floatText = `+${totalWin}`; floatColor = "text-green-400";
-                    updateStats(true, totalWin, null);
+                    isWin = true;
                 }
             } 
-            // --- B: 对决阶段 (闲家扔了) ---
             else {
-                if ([RESULT_TYPE.HIFUMI, RESULT_TYPE.SHONBEN, RESULT_TYPE.MENASHI].includes(pRes.type)) {
-                    // 闲家输
+                if (state.dealerCopyNext) {
+                    isDraw = true;
+                    winAmount = state.bet;
+                    endMsg = `庄家复制点数 (偶数咽) -> 走水`;
+                    logMsg = `结果: 平局`;
+                    floatText = `0`; floatColor = "text-stone-300";
+                    els.resDealer.innerText = pRes.label + " (复制)";
+                }
+                else if ([RESULT_TYPE.HIFUMI, RESULT_TYPE.SHONBEN, RESULT_TYPE.MENASHI].includes(pRes.type)) {
                     const mult = pRes.multiplier || 1;
                     const totalLoss = state.bet * mult;
                     if (mult > 1) {
-                         const extraLoss = state.bet * (mult - 1);
-                         updateCredits(state.credits - extraLoss);
+                         state.credits -= state.bet * (mult - 1);
                     }
                     endMsg = `闲家自爆！(${pRes.label})`;
                     logMsg = `结果: 闲家输 ${totalLoss}`;
                     floatText = `-${totalLoss}`; floatColor = "text-red-500";
-                    updateStats(false, 0, pRes.type);
+                    isWin = false;
                 }
                 else if ([RESULT_TYPE.PIN_ZORO, RESULT_TYPE.ALMIGHTY, RESULT_TYPE.SHIGORO].includes(pRes.type)) {
-                    // 闲家赢 (大役)
                     let mult = pRes.multiplier;
                     if (state.isOneShotMode && mult < 3) mult = 3; 
                     const totalWin = state.bet * mult;
@@ -696,37 +881,38 @@
                     endMsg = `闲家大役！(${pRes.label})`;
                     logMsg = `结果: 闲家赢 ${totalWin}`;
                     floatText = `+${totalWin}`; floatColor = "text-green-400";
-                    updateStats(true, totalWin, pRes.type);
+                    isWin = true;
                 }
                 else {
-                    // 比点数
                     if (pRes.value > dRes.value) {
-                        // 闲家赢
                         let mult = state.isOneShotMode ? 3 : 1;
                         const totalWin = state.bet * mult;
                         winAmount = state.bet + totalWin;
                         endMsg = state.isOneShotMode ? `一击成功！(${pRes.value} > ${dRes.value})` : `闲家胜！(${pRes.value} > ${dRes.value})`;
                         logMsg = `结果: 闲家赢 ${totalWin}`;
                         floatText = `+${totalWin}`; floatColor = "text-green-400";
-                        updateStats(true, totalWin, pRes.type);
+                        isWin = true;
                     } else if (pRes.value < dRes.value) {
-                        // 闲家输
                         endMsg = `庄家胜！(${dRes.value} > ${pRes.value})`;
                         logMsg = `结果: 闲家输 ${state.bet}`;
                         floatText = `-${state.bet}`; floatColor = "text-red-500";
-                        updateStats(false, 0, pRes.type);
+                        isWin = false;
                     } else {
-                        // 平局
+                        isDraw = true;
                         winAmount = state.bet;
                         endMsg = `走水 (平局)`;
                         logMsg = `结果: 平局`;
                         floatText = `0`; floatColor = "text-stone-300";
-                        // 平局统计处理：不算赢也不算输，连胜保持或重置？通常重置或不变，这里不变
                     }
                 }
             }
 
-            if (winAmount > 0) updateCredits(state.credits + winAmount);
+            if (winAmount > 0) state.credits += winAmount;
+            
+            // 存活逻辑
+            state.survivalRounds++;
+            updateAssetsDisplay();
+            
             els.message.innerText = endMsg;
             addLog(logMsg);
             showFloatingText(floatText, floatColor);
@@ -736,21 +922,105 @@
             els.panelDealer.classList.remove('ring-2', 'ring-red-500', 'scale-105');
             els.panelPlayer.classList.remove('ring-2', 'ring-blue-500', 'scale-105');
             
-            checkAchievements(); // 检查成就
-            saveData(); // 保存数据
+            updateStats(isWin, isDraw, pRes ? pRes.type : null);
+            checkAchievements(); // 检查成就解锁
+            checkBankruptcy(); // 检查破产
+            saveData(); 
         }
 
-        // --- 统计更新 ---
-        function updateStats(isWin, winAmount, resultType) {
+        // --- 破产检查与续命 ---
+        function checkBankruptcy() {
+            if (state.credits <= 0) {
+                if (state.cash >= 15) {
+                    // 续命
+                    state.cash -= 15;
+                    state.credits = 1000;
+                    updateAssetsDisplay();
+                    alert("⚠️ 筹码归零！\n\n已自动扣除 $15 现金补充 1000 筹码。\n保持生存，继续战斗！");
+                    addLog("破产保护: -$15, +1000筹码");
+                } else {
+                    // 彻底破产
+                    if (state.survivalRounds > state.stats.maxSurvivalRounds) {
+                        state.stats.maxSurvivalRounds = state.survivalRounds;
+                    }
+                    alert(`💀 彻底破产！\n\n现金不足 $15，无法续命。\n\n本次存活: ${state.survivalRounds} 回合\n历史最佳: ${state.stats.maxSurvivalRounds} 回合\n\n游戏将重置。`);
+                    
+                    // 重置游戏
+                    state.credits = INITIAL_CREDITS;
+                    state.cash = INITIAL_CASH;
+                    state.survivalRounds = 0;
+                    state.history = [];
+                    // 成就和统计不重置
+                    updateAssetsDisplay();
+                    els.history.innerHTML = "";
+                    resetGame();
+                }
+            }
+        }
+
+        // --- 交易所逻辑 ---
+        function toggleExchange() { els.exchangeModal.classList.toggle('hidden'); }
+        
+        function exchangeMoney(type) {
+            if (type === 'buy') {
+                const cashAmt = parseInt(els.buyInput.value);
+                if (!cashAmt || cashAmt <= 0) return alert("请输入有效金额");
+                if (cashAmt > state.cash) return alert("现金不足");
+                
+                state.cash -= cashAmt;
+                const creditsGot = Math.floor(cashAmt * 100 * 0.9); // 10% fee
+                state.credits += creditsGot;
+                alert(`交易成功！\n支付: $${cashAmt}\n获得: ${creditsGot} 筹码 (含10%手续费)`);
+            } else {
+                const creditAmt = parseInt(els.sellInput.value);
+                if (!creditAmt || creditAmt <= 0) return alert("请输入有效金额");
+                if (creditAmt > state.credits) return alert("筹码不足");
+                
+                state.credits -= creditAmt;
+                const cashGot = Math.floor((creditAmt / 100) * 0.9); // 10% fee
+                state.cash += cashGot;
+                alert(`交易成功！\n支付: ${creditAmt} 筹码\n获得: $${cashGot} (含10%手续费)`);
+            }
+            updateAssetsDisplay();
+            toggleExchange();
+            saveData();
+        }
+
+        // --- 成就领奖逻辑 ---
+        function claimReward(achId, levelIndex) {
+            if (!state.claimedRewards) state.claimedRewards = {};
+            if (!state.claimedRewards[achId]) state.claimedRewards[achId] = {};
+            
+            // 防止重复领取
+            if (state.claimedRewards[achId][levelIndex]) return;
+
+            const ach = ACHIEVEMENT_DEFINITIONS.find(a => a.id === achId);
+            const levelData = ach.levels[levelIndex];
+            const reward = REWARDS[levelData.rarity] || 5;
+
+            state.cash += reward;
+            state.claimedRewards[achId][levelIndex] = true;
+            
+            updateAssetsDisplay();
+            renderAchievementsList(); // 刷新列表状态
+            saveData();
+
+            showFloatingText(`+$${reward}`, 'text-green-400 font-bold text-2xl');
+            alert(`🎉 领取成功！\n获得奖励: $${reward}`);
+        }
+
+        function updateStats(isWin, isDraw, resultType) {
             if (!state.stats) state.stats = defaultState.stats;
             
-            if (isWin) {
+            if (isDraw) {
+                state.stats.draws = (state.stats.draws || 0) + 1;
+                state.stats.currentStreak = 0;
+            } else if (isWin) {
                 state.stats.wins++;
                 state.stats.currentStreak++;
-                // 绝境逢生判定 (赢了，且赢之前也就是现在的credits-winAmount比较少，或者简单点：当前不足300)
-                if (state.credits < 300) state.stats.survivorWins = (state.stats.survivorWins || 0) + 1;
-                // 一击必杀判定
-                if (state.isOneShotMode) state.stats.sniperWins = (state.stats.sniperWins || 0) + 1;
+                if (state.stats.currentStreak > (state.stats.maxStreak || 0)) {
+                    state.stats.maxStreak = state.stats.currentStreak;
+                }
             } else {
                 state.stats.losses++;
                 state.stats.currentStreak = 0;
@@ -762,33 +1032,63 @@
             if (resultType === RESULT_TYPE.HIFUMI) state.stats.hifumiCount = (state.stats.hifumiCount || 0) + 1;
         }
 
-        // --- 成就系统 (分级版) ---
+        function toggleStats() {
+            if (els.statsModal.classList.contains('hidden')) {
+                renderStats();
+                els.statsModal.classList.remove('hidden');
+            } else {
+                els.statsModal.classList.add('hidden');
+            }
+        }
+
+        function renderStats() {
+            const s = state.stats;
+            const totalGames = s.wins + s.losses + (s.draws || 0);
+            const winRate = totalGames > 0 ? Math.round((s.wins / totalGames) * 100) : 0;
+
+            const statsData = [
+                { label: '历史最高存活', val: s.maxSurvivalRounds + ' 回合', icon: 'shield', color: 'text-green-400' },
+                { label: '游戏场次', val: totalGames, icon: 'gamepad-2', color: 'text-stone-300' },
+                { label: '胜率', val: winRate + '%', icon: 'percent', color: winRate >= 50 ? 'text-green-400' : 'text-stone-400' },
+                { label: '最高连胜', val: s.maxStreak || 0, icon: 'flame', color: 'text-orange-400' },
+                { label: '平局次数', val: s.draws || 0, icon: 'handshake', color: 'text-stone-300' },
+                { label: '历史最高筹码', val: s.maxCredits, icon: 'trending-up', color: 'text-yellow-400' },
+                { label: '围一 (1-1-1)', val: s.pinZoroCount || 0, icon: 'crown', color: 'text-purple-400' },
+                { label: '武藏 (6-3-4)', val: s.musashiCount || 0, icon: 'sword', color: 'text-red-400' },
+            ];
+
+            els.statsContent.innerHTML = statsData.map(item => `
+                <div class="stat-card">
+                    <div class="mb-2"><i data-lucide="${item.icon}" class="w-6 h-6 ${item.color}"></i></div>
+                    <div class="text-xs text-stone-400 mb-1">${item.label}</div>
+                    <div class="text-xl font-bold text-white font-mono">${item.val}</div>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
         function checkAchievements() {
             if (!state.achievementLevels) state.achievementLevels = {};
             let hasNewUnlock = false;
 
-            // 定义当前统计值映射
             const statsMap = {
                 'wins': state.stats.wins,
                 'streak': state.stats.currentStreak,
                 'wealth': state.credits,
-                'sniper': state.stats.sniperWins || 0,
-                'emperor': state.stats.pinZoroCount || 0,
-                'unlucky': state.stats.hifumiCount || 0,
-                'survivor': state.stats.survivorWins || 0
+                'musashi_master': state.stats.musashiCount || 0,
+                'mirror_master': state.stats.specialRuleCount || 0,
+                'high_roller': state.stats.highRollerCount || 0,
+                'peace_maker': state.stats.draws || 0,
+                'emperor': state.stats.pinZoroCount || 0
             };
 
             ACHIEVEMENT_DEFINITIONS.forEach(ach => {
                 const currentVal = statsMap[ach.id];
-                const currentLevel = state.achievementLevels[ach.id] || 0; // 当前已解锁等级 (0=未解锁)
-                
-                // 检查是否能解锁更高级别
-                // 遍历所有级别
+                const currentLevel = state.achievementLevels[ach.id] || 0;
                 ach.levels.forEach((lvl, idx) => {
                     const levelNum = idx + 1;
-                    // 如果满足条件 且 尚未解锁该级别
                     if (currentVal >= lvl.val && currentLevel < levelNum) {
-                        // 逐级解锁（如果一下跳多级，这里逻辑也会让它更新到最新）
                         state.achievementLevels[ach.id] = levelNum;
                         showAchievementToast(ach, lvl);
                         hasNewUnlock = true;
@@ -801,7 +1101,6 @@
 
         function showAchievementToast(ach, lvl) {
             const toast = document.createElement('div');
-            // 根据稀有度改变Toast边框颜色
             const borderClass = lvl.rarity === 'rarity-legendary' ? 'border-yellow-500' : 
                               lvl.rarity === 'rarity-epic' ? 'border-yellow-400' :
                               lvl.rarity === 'rarity-rare' ? 'border-purple-500' : 'border-stone-500';
@@ -835,7 +1134,6 @@
         }
 
         function renderAchievementsList() {
-            // 计算总进度
             let totalLevels = 0;
             let unlockedLevels = 0;
             ACHIEVEMENT_DEFINITIONS.forEach(ach => {
@@ -845,62 +1143,72 @@
             const percent = Math.round((unlockedLevels / totalLevels) * 100);
             els.achievementProgress.innerText = `${percent}% (${unlockedLevels}/${totalLevels})`;
             
-            // 渲染列表
             const statsMap = {
                 'wins': state.stats.wins,
                 'streak': state.stats.currentStreak,
                 'wealth': state.credits,
-                'sniper': state.stats.sniperWins || 0,
-                'emperor': state.stats.pinZoroCount || 0,
-                'unlucky': state.stats.hifumiCount || 0,
-                'survivor': state.stats.survivorWins || 0
+                'musashi_master': state.stats.musashiCount || 0,
+                'mirror_master': state.stats.specialRuleCount || 0,
+                'high_roller': state.stats.highRollerCount || 0,
+                'peace_maker': state.stats.draws || 0,
+                'emperor': state.stats.pinZoroCount || 0
             };
 
             els.achievementsList.innerHTML = ACHIEVEMENT_DEFINITIONS.map(ach => {
                 const currentLevel = state.achievementLevels[ach.id] || 0;
+                // 显示下一级或者当前最高级
                 const nextLevelIdx = currentLevel < ach.levels.length ? currentLevel : ach.levels.length - 1;
                 const targetLevelData = ach.levels[nextLevelIdx];
                 const isMaxed = currentLevel >= ach.levels.length;
                 
-                // 当前用于显示的数据
+                // 显示当前达成的最高级数据（用于卡片样式）
                 const displayData = currentLevel > 0 ? ach.levels[currentLevel - 1] : ach.levels[0];
                 const rarityClass = currentLevel > 0 ? displayData.rarity : 'border-l-4 border-stone-700';
                 const iconColor = currentLevel > 0 ? displayData.color : 'text-stone-600';
                 const titleText = currentLevel > 0 ? `${ach.title}: ${displayData.tierName}` : ach.title;
                 const descText = isMaxed ? "已达最高等级" : `下一级: ${targetLevelData.desc}`;
                 
-                // 进度条计算
                 const currentVal = statsMap[ach.id];
                 const targetVal = targetLevelData.val;
                 let progressPct = 0;
                 if (isMaxed) progressPct = 100;
-                else {
-                    // 简单百分比
-                    progressPct = Math.min(100, Math.round((currentVal / targetVal) * 100));
-                }
+                else progressPct = Math.min(100, Math.round((currentVal / targetVal) * 100));
 
-                // 星星生成
                 let starsHtml = '';
                 for(let i=0; i<ach.levels.length; i++) {
                     if (i < currentLevel) starsHtml += `<i data-lucide="star" class="w-3 h-3 fill-yellow-500 text-yellow-500 inline-block"></i>`;
                     else starsHtml += `<i data-lucide="star" class="w-3 h-3 text-stone-700 inline-block"></i>`;
                 }
 
+                // 检查是否有未领取的奖励
+                let claimBtnHtml = '';
+                for (let i = 0; i < currentLevel; i++) {
+                    if (!state.claimedRewards || !state.claimedRewards[ach.id] || !state.claimedRewards[ach.id][i]) {
+                        const rewardAmt = REWARDS[ach.levels[i].rarity];
+                        claimBtnHtml = `
+                            <button onclick="claimReward('${ach.id}', ${i})" class="absolute top-2 right-2 claim-btn px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg z-10 hover:scale-105 transition-transform flex items-center gap-1">
+                                <i data-lucide="gift" class="w-3 h-3"></i> 领 $${rewardAmt}
+                            </button>
+                        `;
+                        break; // 只显示一个待领取的
+                    }
+                }
+
                 return `
-                    <div class="achievement-card ${currentLevel > 0 ? '' : 'achievement-locked'} ${rarityClass} p-3 rounded-lg flex flex-col gap-2">
+                    <div class="achievement-card ${currentLevel > 0 ? '' : 'achievement-locked'} ${rarityClass} p-3 rounded-lg flex flex-col gap-2 relative">
+                        ${claimBtnHtml}
                         <div class="flex items-center gap-4">
                             <div class="bg-black/30 p-3 rounded-full achievement-icon-wrapper">
                                 <i data-lucide="${ach.icon}" class="w-6 h-6 ${iconColor}"></i>
                             </div>
                             <div class="flex-1">
-                                <div class="flex justify-between items-center">
+                                <div class="flex justify-between items-center pr-12">
                                     <h4 class="font-bold ach-title ${currentLevel > 0 ? 'text-yellow-100' : ''}">${titleText}</h4>
                                     <div class="flex gap-0.5">${starsHtml}</div>
                                 </div>
                                 <p class="text-xs ach-desc mt-0.5">${descText}</p>
                             </div>
                         </div>
-                        <!-- 进度条 -->
                         <div class="w-full flex items-center gap-2">
                             <div class="progress-bar-bg flex-1">
                                 <div class="progress-bar-fill ${currentLevel > 0 ? 'bg-yellow-600' : 'bg-stone-600'}" style="width: ${progressPct}%"></div>
@@ -913,7 +1221,6 @@
             lucide.createIcons();
         }
 
-        // --- 辅助函数 ---
         function showFloatingText(text, colorClass) {
             const el = document.createElement('div');
             el.className = `float-text ${colorClass}`;
@@ -929,13 +1236,19 @@
             els.shonben.classList.add('hidden'); renderDice([1,2,3]);
             els.resDealer.innerText = "等待..."; els.resPlayer.innerText = "等待...";
             switchView('betting'); els.message.innerText = "请下注开始下一局";
-            if (state.credits < 10) { state.credits = 1000; updateCredits(1000); alert("筹码已耗尽！救济金已发放 (1000)。"); }
-            if (state.bet > state.credits) { state.bet = state.credits; updateBetDisplay(); }
+            if (state.bet > state.credits) { state.bet = Math.max(10, state.credits); updateBetDisplay(); }
             els.panelDealer.classList.add('opacity-100'); els.panelPlayer.classList.remove('opacity-100'); els.panelPlayer.classList.add('opacity-60');
             saveData();
         }
 
-        function updateCredits(val) { state.credits = Math.floor(val); els.credits.innerText = state.credits; }
+        function updateAssetsDisplay() { 
+            state.credits = Math.floor(state.credits); 
+            state.cash = Math.floor(state.cash);
+            els.credits.innerText = state.credits; 
+            els.cash.innerText = '$' + state.cash;
+            els.survival.innerText = state.survivalRounds || 0;
+        }
+
         function renderDice(values) {
             const map = { 1:[5], 2:[1,9], 3:[1,5,9], 4:[1,3,7,9], 5:[1,3,5,7,9], 6:[1,3,4,6,7,9] };
             let html = '';
