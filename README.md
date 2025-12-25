@@ -1,2 +1,2 @@
 # bilibiligao.github.io
-1
+这是一个扔骰子的简单html游戏
